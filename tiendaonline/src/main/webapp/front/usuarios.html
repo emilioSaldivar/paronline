@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ABM de Usuarios</title>
+</head>
+<body>
+  <h1>ABM de Usuarios</h1>
+
+  <div id="usersTable">
+    <!-- Aquí se mostrará la tabla de usuarios -->
+  </div>
+
+  <h2>Agregar Usuario</h2>
+  <form id="addUserForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
+    <button type="submit">Agregar</button>
+  </form>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    // Cargar la tabla de usuarios al cargar la página
+    $(document).ready(function() {
+      // Verificar si el usuario es un administrador
+      var isAdmin = <%= session.getAttribute("isAdmin") %>;
+      if (isAdmin) {
+        loadUsersTable();
+      } else {
+        // Redireccionar o mostrar un mensaje de error
+        window.location.href = "acceso_denegado.html";
+      }
+    });
+    </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    // Cargar la tabla de usuarios al cargar la página
+    $(document).ready(function() {
+      loadUsersTable();
+    });
+
+    // Función para cargar la tabla de usuarios
+    function loadUsersTable() {
+      $.ajax({
+        url: "parusrmcs/users",
+        type: "GET",
+        dataType: "json",
+        success: function(users) {
+          var tableHtml = "<table><tr><th>Username</th><th>Acciones</th></tr>";
+          users.forEach(function(user) {
+            tableHtml += "<tr>";
+            tableHtml += "<td>" + user.username + "</td>";
+            tableHtml += "<td><button onclick='editUser(" + user.id + ")'>Editar</button>";
+            tableHtml += "<button onclick='deleteUser(" + user.id + ")'>Eliminar</button></td>";
+            tableHtml += "</tr>";
+          });
+          tableHtml += "</table>";
+          $("#usersTable").html(tableHtml);
+        }
+      });
+    }
+
+    // Función para agregar un usuario
+    $("#addUserForm").submit(function(event) {
+      event.preventDefault();
+      var username = $("#username").val();
+      var password = $("#password").val();
+      $.ajax({
+        url: "parusrmcs/users",
+        type: "POST",
+        dataType: "json",
+        data: { username: username, password: password },
+        success: function() {
+          loadUsersTable();
+          $("#username").val("");
+          $("#password").val("");
+        }
+      });
+    });
+
+    // Función para editar un usuario
+    function editUser(userId) {
+      // Implementa la lógica para editar un usuario
+      // Puedes mostrar un formulario con los datos del usuario y permitir su edición
+    }
+
+    // Función para eliminar un usuario
+    function deleteUser(userId) {
+      // Implementa la lógica para eliminar un usuario
+      // Puedes mostrar un mensaje de confirmación y enviar una solicitud DELETE al microservicio
+    }
+  </script>
+</body>
+</html>
